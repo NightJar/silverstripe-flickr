@@ -2,11 +2,9 @@
 
 namespace MadMatt\Flickr\Tests;
 
-use Phake;
 use GuzzleHttp\Psr7\Response;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Control\HTTPResponse;
-use SilverStripe\Core\Injector\Injector;
 use MadMatt\Flickr\Gateways\FlickrGateway;
 use MadMatt\Flickr\Services\FlickrService;
 
@@ -23,8 +21,6 @@ class FlickrServiceTest extends SapphireTest
     public function setUpOnce()
     {
         parent::setUpOnce();
-
-        // Phake::include_hamcrest();
     }
 
     /**
@@ -32,7 +28,10 @@ class FlickrServiceTest extends SapphireTest
      */
     public function testGetSetApiKey()
     {
-        $service = Injector::inst()->create(FlickrService::class);
+        $mockGateway = $this->getMockGateway();
+        $mockGateway->expects($this->once())->method('getApiKey')->willReturn('1234');
+        $mockGateway->expects($this->once())->method('setApiKey')->with('1234');
+        $service = new FlickrService($mockGateway);
         $testApiKey = '1234';
 
         $service->setApiKey($testApiKey);
@@ -54,11 +53,9 @@ class FlickrServiceTest extends SapphireTest
         ];
 
         $mockGateway = $this->getMockGateway(true);
-        Phake::when($mockGateway)
-            ->request($params)
-            ->thenReturn($this->getMockResponse_getPhotosetsForUser());
+        $mockGateway->method('request')->with($params)->willReturn($this->getMockResponse_getPhotosetsForUser());
 
-        $service = Injector::inst()->get(FlickrService::class);
+        $service = new FlickrService();
         $service->setGateway($mockGateway);
 
         $response = $service->getPhotosetsForUser($userId);
@@ -80,12 +77,9 @@ class FlickrServiceTest extends SapphireTest
             'extras' => 'description,original_format'
         ];
 
-        $service = Injector::inst()->get(FlickrService::class);
+        $service = new FlickrService();
         $service->setGateway($mockGateway);
-
-        Phake::when($mockGateway)
-            ->request($params)
-            ->thenReturn($this->getMockResponse_getPhotosInPhotoset());
+        $mockGateway->method('request')->with($params)->willReturn($this->getMockResponse_getPhotosInPhotoset());
 
         $response = $service->getPhotosInPhotoset($photosetId);
 
@@ -101,12 +95,10 @@ class FlickrServiceTest extends SapphireTest
         $userId = '132044853@N08';
 
         $mockGateway = $this->getMockGateway();
-        Phake::when($mockGateway)
-            ->request([])
-            ->thenReturn($this->getMockResponse_getPhotosetsForUser_increaseCount());
+        $mockGateway->method('request')->willReturn($this->getMockResponse_getPhotosetsForUser_increaseCount());
 
         // temporarily reduce soft cache expiry for testing
-        $service = Injector::inst()->get(FlickrService::class);
+        $service = new FlickrService($this->getMockGateway());
         $service->config()->set('flickr_soft_cache_expiry', 3);
 
         // this should make the first api request
@@ -120,20 +112,15 @@ class FlickrServiceTest extends SapphireTest
     }
 
     /**
-     * Setup a mock gateway using Phake::mock() to mock a basic version of `isAPIAvaiable`
+     * Setup a mock gateway using PHPUnit's createMock() to mock a basic version of `isAPIAvaiable`
      * @param boolean $available Can change this to account for when API is unavailable
-     * @return __phockito_FlickrService_Spy
+     * @return FlickrGateway
      */
     public function getMockGateway($available = true)
     {
-        // setup mock
-        $spy = Phake::mock(FlickrGateway::class);
-
-        Phake::when($spy)
-            ->isAPIAvailable()
-            ->thenReturn($available);
-
-        return $spy;
+        $mock = $this->createMock(FlickrGateway::class);
+        $mock->method('isAPIAvailable')->willReturn($available);
+        return $mock;
     }
 
     /**

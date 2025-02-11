@@ -26,7 +26,8 @@ class FlickrPhoto extends FlickrData
      */
     public static function create_from_array($photo)
     {
-        if (!isset($photo['id']) ||
+        if (
+            !isset($photo['id']) ||
             !isset($photo['farm']) ||
             !isset($photo['server']) ||
             !isset($photo['secret'])

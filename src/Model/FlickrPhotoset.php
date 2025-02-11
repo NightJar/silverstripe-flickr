@@ -16,7 +16,7 @@ class FlickrPhotoset extends FlickrData
         'Title' => 'Varchar',
         'ID' => 'Varchar'
     ];
-    
+
     /**
      * @var string photoset owner identifier
      */
@@ -42,7 +42,8 @@ class FlickrPhotoset extends FlickrData
     public static function create_from_array($set, $userId = null)
     {
         // Validate input and return null if required params are not set
-        if (!isset($set['id']) ||
+        if (
+            !isset($set['id']) ||
             !isset($set['title']) ||
             !isset($set['title']['_content'])
         ) {
@@ -79,7 +80,7 @@ class FlickrPhotoset extends FlickrData
         if ($this->userId === null || !is_string($this->userId)) {
             return "";
         }
-        
+
         return sprintf(
             '%swww.flickr.com/photos/%s/sets/%s',
             Director::protocol(),

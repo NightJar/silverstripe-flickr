@@ -10,6 +10,8 @@ class FlickrGateway
 {
     use Configurable;
 
+    private ?Client $client = null;
+
     /**
      * @var string The API key to be used for the next request to the API. This may change between requests (with calls
      * to {@link self::setApiKey()}), so it's not a config variable.

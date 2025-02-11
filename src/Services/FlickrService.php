@@ -32,20 +32,22 @@ class FlickrService
     private static $skip_error_logging = false;
 
     /**
-     * @var FlickrGateway
+     * @var FlickrGateway|null
      */
-    private $gateway;
+    private ?FlickrGateway $gateway = null;
 
     /**
      * @var array
      */
     private static $dependencies = [
-        'FlickrGateway' => '%$' . FlickrGateway::class,
+        'Gateway' => '%$' . FlickrGateway::class,
     ];
 
-    public function __construct()
+    public function __construct(?FlickrGateway $gateway = null)
     {
-        $this->setGateway(Injector::inst()->get(FlickrGateway::class));
+        if ($gateway) {
+            $this->setGateway($gateway);
+        }
     }
 
     /**
