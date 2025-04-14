@@ -109,7 +109,7 @@ class FlickrGateway
 
 
     /**
-     * @param array
+     * @param array $params
      * @return array
      */
     public function request($params = [])
@@ -136,7 +136,7 @@ class FlickrGateway
      * Helper to set API key
      *
      * @param string $key
-     * @return void
+     * @return self
      */
     public function setApiKey($key)
     {

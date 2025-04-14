@@ -16,14 +16,6 @@ class FlickrServiceTest extends SapphireTest
     private $callCount = 0;
 
     /**
-     * @return void
-     */
-    public function setUpOnce()
-    {
-        parent::setUpOnce();
-    }
-
-    /**
      * Test that the set/get API key methods work
      */
     public function testGetSetApiKey()
@@ -114,7 +106,7 @@ class FlickrServiceTest extends SapphireTest
     /**
      * Setup a mock gateway using PHPUnit's createMock() to mock a basic version of `isAPIAvaiable`
      * @param boolean $available Can change this to account for when API is unavailable
-     * @return FlickrGateway
+     * @return \PHPUnit\Framework\MockObject\MockObject&FlickrGateway
      */
     public function getMockGateway($available = true)
     {
@@ -126,7 +118,7 @@ class FlickrServiceTest extends SapphireTest
     /**
      * Mimic successful responses from the Flickr API
      *
-     * @return RestfulService_Response
+     * @return array unserialised stubbed response detail keyed array
      */
     private function getMockResponse_getPhotosetsForUser()
     {
@@ -139,7 +131,7 @@ class FlickrServiceTest extends SapphireTest
     }
 
     /**
-     * @return RestfulService_Response
+     * @return array unserialised stubbed response detail keyed array
      */
     private function getMockResponse_getPhotosInPhotoset()
     {
@@ -152,7 +144,7 @@ class FlickrServiceTest extends SapphireTest
     }
 
     /**
-     * @return void
+     * @return array
      */
     private function getMockResponse_getPhotosetsForUser_increaseCount()
     {

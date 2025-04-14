@@ -22,7 +22,7 @@ class FlickrPhoto extends FlickrData
 
     /**
      * @param mixed $photo
-     * @return void
+     * @return FlickrPhoto|null
      */
     public static function create_from_array($photo)
     {
@@ -135,6 +135,7 @@ class FlickrPhoto extends FlickrData
     }
 
     /**
+     * @param string $size
      * @return string
      */
     private function getUrl($size = 'o')

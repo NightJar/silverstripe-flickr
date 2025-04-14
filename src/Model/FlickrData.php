@@ -9,6 +9,8 @@ use SilverStripe\View\ViewableData;
  *
  * Represents a single object retrieved from the Flickr API. This shouldn't be used directly (hence being abstract), but
  * is extended by other objects - e.g. {@link FlickrPhoto}, {@link FlickrPhotoset}
+ *
+ * @property int $ID
  */
 abstract class FlickrData extends ViewableData
 {

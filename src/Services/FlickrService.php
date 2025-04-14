@@ -3,31 +3,34 @@
 namespace MadMatt\Flickr\Services;
 
 use Exception;
-use Psr\Log\LoggerInterface;
-use SilverStripe\ORM\ArrayList;
-use Psr\SimpleCache\CacheInterface;
+use GuzzleHttp\Psr7\Response;
+use MadMatt\Flickr\Gateways\FlickrGateway;
 use MadMatt\Flickr\Model\FlickrPhoto;
 use MadMatt\Flickr\Model\FlickrPhotoset;
-use SilverStripe\Core\Injector\Injector;
-use MadMatt\Flickr\Gateways\FlickrGateway;
+use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\ORM\ArrayList;
 
 class FlickrService
 {
     use Configurable;
 
     /**
-     * @var int Expiry time for SS_Cache
+     * @var int Expiry time for cache
      * This determines how long the cache is kept before it is permanently cleared.
      * We need to clear at some point to ensure photosets removed from Flickr are eventually
      * hidden at the website end, measured in seconds. 86400 == 1 day.
+     * @config
      */
     private static $flickr_hard_cache_expiry = 86400;
 
     /**
-     * @var boolean To determine if errors should be logged everytime
+     * @var bool To determine if errors should be logged everytime
      * This can be turned on when using the getCachedCall method,
      * so errors are only logged if both the API response and SS_Cache fallback fails.
+     * @config
      */
     private static $skip_error_logging = false;
 
@@ -52,15 +55,16 @@ class FlickrService
 
     /**
      * @param FlickrGateway $gateway
-     * @return FlickrService
+     * @return self
      */
     public function setGateway(FlickrGateway $gateway)
     {
         $this->gateway = $gateway;
+        return $this;
     }
 
     /**
-     * @return FlickrGateway
+     * @return FlickrGateway|null
      */
     public function getGateway()
     {
@@ -68,18 +72,18 @@ class FlickrService
     }
 
     /**
-     * @param array
-     * @return array
+     * @param array $params
+     * @return array|null
      */
     public function request($params)
     {
-        return $this->gateway->request($params);
+        return $this->getGateway()?->request($params);
     }
 
     /**
-     * @param string $userId The Flickr user_id to get all photosets for
+     * @param int|string $userId The Flickr user_id to get all photosets for
      * @todo Currently returns all photosets. Optimisations could be made to only return a single page of results
-     * @return ArrayList<FlickrPhotoset>
+     * @return ArrayList<FlickrPhotoset>|null
      */
     public function getPhotosetsForUser($userId)
     {
@@ -127,9 +131,9 @@ class FlickrService
 
     /**
      *
-     * @param int $photosetId
-     * @param int $userId
-     * @return ArrayList<FlickrPhoto>
+     * @param int|string $photosetId numeric
+     * @param int|string $userId
+     * @return FlickrPhotoset|null
      */
     public function getPhotosetById($photosetId, $userId = null)
     {
@@ -174,9 +178,9 @@ class FlickrService
     /**
      * Returns all photos within a given photoset.
      *
-     * @param int $photosetId
-     * @param int|null $userId Optional, but API will respond faster if this is specified
-     * @return ArrayList<FlickrPhoto>
+     * @param int|string $photosetId
+     * @param int|string $userId Optional, but API will respond faster if this is specified
+     * @return ArrayList<FlickrPhoto>|null
      */
     public function getPhotosInPhotoset($photosetId, $userId = null)
     {
@@ -231,9 +235,9 @@ class FlickrService
      * This returns API responses saved to a SS_Cache file instead of the API response directly
      * as the Flickr API is often not reliable
      *
-     * @param String $funcName Name of the function to call if cache expired or does not exist
-     * @param  array $args Arguments for the function
-     * @return ArrayList<FlickrPhoto|FlickrPhotoset>
+     * @param string $funcName Name of the function to call if cache expired or does not exist
+     * @param array $args Arguments for the function
+     * @return ArrayList<FlickrPhoto|FlickrPhotoset>|null
      */
     public function getCachedCall($funcName, $args = [])
     {
@@ -283,41 +287,41 @@ class FlickrService
     }
 
     /**
-     * @return bool true if the API is available right now, or false if it isn't
+     * @return bool|null true if the API is available right now, or false if it isn't
      */
     public function isAPIAvailable()
     {
-        return $this->getGateway()->isAPIAvailable();
+        return $this->getGateway()?->isAPIAvailable();
     }
 
     /**
      * Helper to get API key
      *
      * @return string
-     * @return void
+     * @return string|null
      */
     public function getApiKey()
     {
-        return $this->gateway->getApiKey();
+        return $this->getGateway()?->getApiKey();
     }
 
     /**
      * Helper to set API key
      *
      * @param string $key
-     * @return void
+     * @return self
      */
     public function setApiKey($key)
     {
-        $this->gateway->setApiKey($key);
+        $this->getGateway()->setApiKey($key);
         return $this;
     }
 
     /**
      * Get the API response code
      *
-     * @param Response
-     * @return String
+     * @param Response $response
+     * @return int
      */
     public function getApiResponseCode($response)
     {
@@ -327,8 +331,8 @@ class FlickrService
     /**
      * Get the API response message
      *
-     * @param Response
-     * @return String
+     * @param Response $response
+     * @return string
      */
     public function getApiResponseMessage($response)
     {

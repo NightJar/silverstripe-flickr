@@ -56,7 +56,7 @@ class FlickrPhotoset extends FlickrData
 
     /**
      * Return photos within this photoset
-     * @return ArrayList<FlickrPhoto>
+     * @return \SilverStripe\ORM\ArrayList<FlickrPhoto>
      */
     public function getPhotos()
     {
