@@ -2,7 +2,7 @@
 
 namespace MadMatt\Flickr\Model;
 
-use SilverStripe\View\ViewableData;
+use SilverStripe\Model\ModelData;
 
 /**
  * Class FlickrData
@@ -12,7 +12,7 @@ use SilverStripe\View\ViewableData;
  *
  * @property int $ID
  */
-abstract class FlickrData extends ViewableData
+abstract class FlickrData extends ModelData
 {
     /**
      * @var mixed
@@ -46,7 +46,7 @@ abstract class FlickrData extends ViewableData
      * @param string $property
      * @return mixed
      */
-    public function __get($property)
+    public function __get(string $property): mixed
     {
         if ($this->hasMethod($method = "get$property")) {
             return $this->$method();
